@@ -1,0 +1,73 @@
+-- Desrcibe a stream or a table
+describe <stream/table>;
+
+-- Output:
+--  Field       | Type
+-- -------------------------------
+--  USERID      | INTEGER
+--  FIRSTNAME   | VARCHAR(STRING)
+--  LASTNAME    | VARCHAR(STRING)
+--  COUNTRYCODE | VARCHAR(STRING)
+--  RATING      | DOUBLE
+-- -------------------------------
+
+
+-- Push query
+SELECT rowtime, userid FROM USERPROFILE EMIT CHANGES;
+-- Output:
+-- +---------------------------------------------+
+-- |ROWTIME               |USERID                |
+-- +---------------------------------------------+
+-- |1704804880758         |1000                  |
+-- |1704804881070         |1001                  |
+-- |1704804881247         |1002                  |
+-- |1704804882072         |1003                  |
+-- |1704804883069         |1004                  |
+-- |1704804884072         |1005                  |
+
+-- Maniulation of create_time + full name
+select  
+TIMESTAMPTOSTRING(rowtime, 'dd/MMM HH:mm') as createtime,
+firstname + ' ' + ucase(lastname) as full_name
+FROM USERPROFILE EMIT CHANGES;
+
+-- Output:
+-- +-------------------------------------------------------------------------------------------+
+-- |CREATETIME                                   |FULL_NAME                                    |
+-- +-------------------------------------------------------------------------------------------+
+-- |09/Jan 12:59                                 |Ivan DOTTY                                   |
+-- |09/Jan 12:59                                 |Grace JONES                                  |
+-- |09/Jan 12:59                                 |Ivan COEN                                    |
+-- |09/Jan 12:59                                 |Carol JONES                                  |
+-- |09/Jan 12:59                                 |Eve JONES                                    |
+-- |09/Jan 13:00                                 |Ivan COEN                                    |
+-- |09/Jan 13:00                                 |Frank FAWCETT                                |
+-- |09/Jan 13:00                                 |Eve FAWCETT                                  |
+-- |09/Jan 13:00                                 |Ivan EDISON                                  |
+-- |09/Jan 13:00                                 |Alice FAWCETT                                |
+-- |09/Jan 13:00                                 |Dan FAWCETT                                  |
+-- |09/Jan 13:00                                 |Eve FAWCETT                                  |
+-- |09/Jan 13:00                                 |Alice COEN                                   |
+-- |09/Jan 13:00                                 |Alice DOTTY                                  |
+
+-- Create stream to stream
+create stream user_profile_pretty as 
+select firstname + ' ' 
++ ucase( lastname) 
++ ' from ' + countrycode 
++ ' has a rating of ' + cast(rating as varchar) + ' stars. ' 
++ case when rating < 2.5 then 'Poor'
+       when rating between 2.5 and 4.2 then 'Good'
+       else 'Excellent' 
+   end as description
+from userprofile;
+
+-- Or in run script at ksql>
+run script ./user_profile_pretty.ksql
+
+-- Describe USER_PROFILE_PRETTY extended;
+-- Show presistant query dsecription.
+
+-- Select the entire raw
+select description from user_profile_pretty emit changes;
+

@@ -191,11 +191,10 @@ At KSQL prompt
 
 ```
 
-select firstname + ' ' 
-+ ucase( lastname) 
-+ ' from ' + countrycode 
-+ ' has a rating of ' + cast(rating as varchar) + ' stars. ' 
-+ case when rating < 2.5 then 'Poor'
+select firstname + ' ' ucase( lastname) 
+ ' from ' + countrycode 
+ ' has a rating of ' + cast(rating as varchar) + ' stars. ' 
+ case when rating < 2.5 then 'Poor'
        when rating between 2.5 and 4.2 then 'Good'
        else 'Excellent' 
    end as description
@@ -242,7 +241,7 @@ At UNIX prompt
 kafka-topics --bootstrap-server localhost:9092 --create --partitions 1 --replication-factor 1 --topic COUNTRY-CSV
 
 -- version 5.5 and later
-kafka-console-producer --broker-list localhost:9092 --topic COUNTRY-CSV --property "parse.key=true"  --property "key.separator=:" << EOF
+kafka-console-producer --bootstrap-server localhost:9092 --topic COUNTRY-CSV --property "parse.key=true"  --property "key.separator=:" << EOF
 AU:Australia
 IN:India
 GB:UK
