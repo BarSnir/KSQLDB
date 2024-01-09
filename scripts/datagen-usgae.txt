@@ -1,0 +1,7 @@
+ksql-datagen schema=./datagen/userprofile.avro \
+format=json \
+topic=USERPROFILE \
+key=userid \
+msgRate=1 \
+iterations=1000 \
+bootstrap-server=kafka:29092

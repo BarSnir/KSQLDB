@@ -124,7 +124,7 @@ kafka-console-producer --broker-list localhost:9092 --topic USERPROFILE << EOF
 {"userid": 1000, "firstname":"Alison", "lastname":"Smith", "countrycode":"GB", "rating":4.7}
 EOF
 
-kafka-console-producer --broker-list localhost:9092 --topic USERPROFILE << EOF
+kafka-console-producer --bootstrap-server localhost:9092 --topic USERPROFILE << EOF
 {"userid": 1001, "firstname":"Bob", "lastname":"Smith", "countrycode":"US", "rating":4.2}
 EOF
 ```

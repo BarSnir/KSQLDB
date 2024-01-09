@@ -1,0 +1,5 @@
+-- Default will start as latest.
+print "<topic>";
+print "<topic>" from beginning;
+print "<topic>" from beginning limit <int>;
+print "<topic>" from beginning interval <seconds> limit <int>;
