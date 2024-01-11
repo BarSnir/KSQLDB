@@ -454,7 +454,7 @@ JSON - At UNIX prompt
 ```
 kafka-topics --bootstrap-server localhost:9092 --create --partitions 1 --replication-factor 1 --topic COMPLAINTS_JSON
 
-kafka-console-producer --broker-list localhost:9092 --topic COMPLAINTS_JSON << EOF
+kafka-console-producer --bootstrap-server localhost:9092 --topic COMPLAINTS_JSON << EOF
 {"customer_name":"Alice, Bob and Carole", "complaint_type":"Bad driver", "trip_cost": 22.40, "new_customer": true}
 EOF
 ```
@@ -493,7 +493,7 @@ At UNIX prompt
 ```
 kafka-topics --bootstrap-server localhost:9092 --create --partitions 1 --replication-factor 1 --topic COMPLAINTS_AVRO
 
-kafka-avro-console-producer  --broker-list localhost:9092 --topic COMPLAINTS_AVRO \
+kafka-avro-console-producer  --bootstrap-server kafka:29092 --topic COMPLAINTS_AVRO \
 --property value.schema='
 {
   "type": "record",
@@ -559,7 +559,7 @@ To see Confluent Control Center, open your web browser at http://localhost:9021/
 ```
 curl -s -X GET http://localhost:8081/subjects/COMPLAINTS_AVRO-value/versions
 
-kafka-avro-console-producer  --broker-list localhost:9092 --topic COMPLAINTS_AVRO \
+kafka-avro-console-producer  --broker-list kafka:29092 --topic COMPLAINTS_AVRO \
 --property value.schema='
 {
   "type": "record",
@@ -638,7 +638,7 @@ At UNIX prompt
 ```
 kafka-topics --bootstrap-server localhost:9092 --create --partitions 1 --replication-factor 1 --topic WEATHERNESTED
 
-cat demo-weather.json | kafka-console-producer --broker-list localhost:9092 --topic WEATHERNESTED
+cat demo-weather.json | kafka-console-producer --broker-list kafka:29092 --topic WEATHERNESTED
 ```
 
 
@@ -741,7 +741,7 @@ _When you use KSQL to join streaming data, you must ensure that your streams and
 
 At UNIX prompt
 ```
-kafka-topics --bootstrap-server localhost:9092 --create --partitions 2 --replication-factor 1 --topic DRIVER_PROFILE
+kafka-topics --bootstrap-server localhost:9092 --create --partitions  --replication-factor 1 --topic DRIVER_PROFILE
 
 kafka-console-producer --broker-list localhost:9092 --topic DRIVER_PROFILE << EOF
 {"driver_name":"Mr. Speedy", "countrycode":"AU", "rating":2.4}
@@ -754,6 +754,7 @@ At KSQL prompt
 CREATE STREAM DRIVER_PROFILE (driver_name VARCHAR, countrycode VARCHAR, rating DOUBLE) 
   WITH (VALUE_FORMAT = 'JSON', KAFKA_TOPIC = 'DRIVER_PROFILE');
 
+```
 
 
 select dp.driver_name, ct.countryname, dp.rating 
@@ -774,6 +775,19 @@ from DRIVERPROFILE_REKEYED dp2
 left join COUNTRYTABLE ct on ct.countrycode=dp2.countrycode emit changes;    
 ```
 
+kafka-topics --bootstrap-server localhost:9092 --create --partitions  --replication-factor 1 --topic riderequest-europe
+kafka-topics --bootstrap-server localhost:9092 --create --partitions  --replication-factor 1 --topic riderequest-america
+
+CREATE STREAM DRIVER_PROFILE (
+  requesttime long,
+  latitude double,
+  longitude double,
+  rideid varchar,
+  user varchar,
+  city_name varchar
+) 
+WITH (VALUE_FORMAT = 'AVRO', KAFKA_TOPIC = 'riderequest-europe');
+
 ## Lecture 25: Merging Streams
 Merging Streams; Concat Topics with INSERT
 
@@ -784,9 +798,9 @@ Merging Streams; Concat Topics with INSERT
 At UNIX prompt
 
 ```
-ksql-datagen schema=./datagen/riderequest-europe.avro  format=avro topic=riderequest-europe key=rideid msgRate=1 iterations=1000
+ksql-datagen schema=./datagen/riderequest-europe.avro  format=avro topic=riderequest-europe key=rideid msgRate=1 iterations=1000 bootstrap-server=kafka:29092 schemaRegistryUrl=http://schema-registry:8081
 
-ksql-datagen schema=./datagen/riderequest-america.avro format=avro topic=riderequest-america key=rideid msgRate=1 iterations=1000
+ksql-datagen schema=./datagen/riderequest-america.avro format=avro topic=riderequest-america key=rideid msgRate=1 iterations=1000 bootstrap-server=kafka:29092
 ```
 
 At KSQL prompt

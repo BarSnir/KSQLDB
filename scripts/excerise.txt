@@ -1,0 +1,48 @@
+kafka-avro-console-producer  --bootstrap-server kafka:29092 --topic riderequest-america \
+--property value.schema='
+{
+  "namespace": "streams",
+  "name": "riderequest",
+  "type": "record",
+  "fields": [
+    {
+      "name": "requesttime",
+      "type": {
+        "type": "long"
+      }
+    },
+    {
+      "name": "latitude",
+      "type": {
+        "type": "double"
+      }
+    },     
+    {
+      "name": "longitude",
+      "type": {
+        "type": "double"
+      }
+    },    
+    {
+      "name": "rideid",
+      "type": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "user",
+      "type": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "city_name",
+      "type": {
+        "type": "string"
+      }
+    }
+  ]
+}' << EOF
+{"requesttime": 100, "latitude": 38.0, "longitude": -112.0, "rideid": "abc", "user": "Niaj", "city_name": "Seattle"}
+EOF
+```
